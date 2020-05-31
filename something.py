@@ -52,6 +52,18 @@ yNeg = 0
 def barrierUpdate(x,y):
     screen.blit(barrierPicture,(barrierXPos,barrierYPos))
 
+def fromSensorTo(sensorData,width):
+    #We are getting a distance from the sensor and then I wwant to translate it to some width thing
+    maxDistRead = 30
+    if sensorData < 3:
+        return (0)
+    elif sensorData > maxDistRead:
+        return width
+    else:
+        #When we are within the sensor range we move to some position in the board
+        return  ( (sensorData*1.0)/(maxDistRead*1.0) ) * width
+
+
 #Function to update bullets
 def ballUpdate(x, y):
     screen.blit(ball,(x,y))
@@ -131,6 +143,9 @@ while 1:
             #Removing the projectile with the pop method
             projectileList.pop((projectileListSize-1)-i)
 
+
+
+
     #If the ball would go out of bounds we keep it in bounds
     if ballx < 0:
         ballx = 0
@@ -142,6 +157,9 @@ while 1:
     elif bally > height -110:
         bally = height - 110
 
+    #Right here I would call the sensor stuff
+    #thing = fromSensorTo(sensorRead, width - 110)
+    #ballx = thing
     #moving the ball
     ballUpdate(ballx,bally)
 
