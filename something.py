@@ -3,12 +3,14 @@ import pygame
 import time
 from bullets import bullets
 from sensorClass import sensorThread
+from playerControls import playerPosition
 
 import time
 
 
 #Sending the pin numbers when I create the thread
-sensorReadings = sensorThread(32,18)
+player1Readings = sensorThread(32,18)
+player2Readings = sensorThread(8,10)
 
 #Tennis ball from
 #Icons made by <a href="https://www.flaticon.com/authors/those-icons" title="Those Icons">Those Icons</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
@@ -27,12 +29,9 @@ screen = pygame.display.set_mode(size)
 
 ball = pygame.image.load("intro_ball.gif")
 ballrect = ball.get_rect()
-ballx , bally = 100,500
-ballXChange = 1
-ballYChange = 1
 
-print(ballrect)
-
+player1 = playerPosition(100,500)
+player2 = playerPosition(100,100)
 
 #Image of the projectile
 projectilePicture = pygame.image.load("tennis.png")
@@ -78,7 +77,8 @@ def ballUpdate(x, y):
     screen.blit(ball,(x,y))
 
 
-sensorReadings.start()
+player1Readings.start()
+player2Readings.start()
 
 #In here forever until we quit
 while 1:
@@ -90,66 +90,37 @@ while 1:
     #Every event enters this for loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
-
-        #When you do a keyDown then you enter here
-        if event.type == pygame.KEYDOWN:
-            #When you match one of these keys we move the bullet
-            if event.key == pygame.K_d:
-                xPos += ballXChange
-            if  event.key == pygame.K_a:
-                xNeg -= ballXChange
-            if  event.key == pygame.K_w:
-                yNeg -= ballYChange
-            if  event.key == pygame.K_s:
-                yPos += ballYChange
-
             #When you push space we shoot a tennis ball
+        if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 #shoot projectile
                 #We are creating a bullet here with these specifications
-                bullet = bullets(ballx+55,bally-25,projectileRect)
+                bullet = bullets(player1.returnXPos()+55,player1.returnYPos()-25,projectileRect)
                 #We are adding the bullet to the projectile list
                 projectileList.append(bullet)
 
             #If you push q the game quits
             if  event.key == pygame.K_q:
-                sensorReadings.stopRunning()
-                sensorReadings.join()
+                print("WE ARE SUPPOSED TO BE QUITTING")
+                #When we flip out on player2 we die 
+                player1Readings.stopRunning()
+                player2Readings.stopRunning()
+                player1Readings.join()
+                player2Readings.join()
                 sys.exit()
                 
 
-        #When you let go of the key you stop moving in that direction
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_a:
-                xNeg = 0
-            if  event.key == pygame.K_d:
-                xPos = 0
-            if event.key == pygame.K_w:
-                yNeg = 0
-            if  event.key == pygame.K_s:
-                yPos = 0
-
-    #We are moving the ball based on the values of these variables
-    ballx += (xPos + xNeg)
-    bally += (yPos + yNeg)
-
-    #If the ball would go out of bounds we keep it in bounds
-    if ballx < 0:
-        ballx = 0
-    elif ballx > width - 110:
-        ballx = width - 110
-
-    if bally < 0:
-        bally = 0
-    elif bally > height -110:
-        bally = height - 110
-
 
     #the distance is in cm
-    thing = fromSensorTo(sensorReadings.returnDistance(), width - 110)
-    ballx = thing
+    player1X = fromSensorTo(player1Readings.returnDistance(), width - 110)
+    player2X = fromSensorTo(player2Readings.returnDistance(),width-110)
+    
+    player1.updateXPos(player1X)
+    player2.updateXPos(player2X)
     #moving the ball
-    ballUpdate(ballx,bally)
+    ballUpdate(player1.returnXPos(),player1.returnYPos())
+    #moving the second ball 
+    ballUpdate(player2.returnXPos(),player2.returnYPos())
 
 
     #Moving the barrier
@@ -213,9 +184,5 @@ while 1:
     # if ballrect.top < 0 or ballrect.bottom > height:
     #     speed[1] = -speed[1]
 
-    #screen.blit(ball, ballrect)
-
     #updating the display
     pygame.display.update()
-
-    #pygame.display.flip()
