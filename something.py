@@ -127,6 +127,7 @@ while 1:
 
         projectile.checkCollision(player1Pos,ballrect)
         projectile.checkCollision(player2Pos,ballrect)
+        projectile.checkCollisionBoundary(width)
 
         #We are calling the moveBulletFunction in the bullets class which moves the y position
         projectile.moveBullet()

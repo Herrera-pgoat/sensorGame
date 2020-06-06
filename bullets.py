@@ -1,13 +1,16 @@
+import secrets
+
 #Class we are using to determine information about a bullet
 class bullets():
 
     def __init__(self,xPos, yPos,rect):
         self.onScreen = True
         self.blocked = False
-        self.shouldBlock = 5 
+        self.shouldBlock = 10 
         self.xPos = xPos
         self.yPos = yPos
         self.yChange = -3
+        self.xChange = 0
         self.rect = rect
 
 
@@ -18,10 +21,25 @@ class bullets():
         
         otherXSize = otherSize[2]
         otherYSize = otherSize[3]
-        if otherXPos + (otherXSize/2) > self.xPos and otherXPos-(otherXSize/2) <self.xPos:
-            if otherYPos + (otherYSize/6) > self.yPos and otherYPos-(otherYSize/5) <self.yPos:
+        #+ (otherXSize/2)
+        if otherXPos + (otherXSize/2)  > self.xPos and otherXPos-(otherXSize/2) <self.xPos:
+            if otherYPos + (otherYSize/3) > self.yPos and otherYPos-(otherYSize/3) <self.yPos:
+                
+                #Right here we should be adding something to x coordinate depending on which sid e
+                #you hit the opposing ball in
+                
+                if self.xPos < (otherXPos + 40 ):
+                    self.xChange = (self.xChange *-1) + int(secrets.randbelow(6))
+                elif self.xPos <  (otherXPos +70):
+                    self.xChange = (self.xChange *-1) - int(secrets.randbelow(6))
                 return True
         return False
+
+    def checkCollisionBoundary(self,xMax):
+        if self.xPos >= xMax:
+            self.xChange *= -1
+        elif self.xPos <= 0:
+            self.xChange *= -1
 
 
     def checkCollision(self,otherObjectPosition,otherObjectSize):
@@ -32,7 +50,7 @@ class bullets():
         if self.checkCollisionHelper(otherObjectPosition,otherObjectSize):            
             self.yChange *= -1
             self.blocked = True
-            self.shouldBlock = 5
+            self.shouldBlock = 10
         
         
         print (otherObjectPosition)
@@ -45,3 +63,4 @@ class bullets():
 
     def moveBullet(self):
         self.yPos += self.yChange
+        self.xPos += self.xChange
