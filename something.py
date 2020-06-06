@@ -37,14 +37,6 @@ player2 = playerPosition(100,100)
 projectilePicture = pygame.image.load("tennis.png")
 projectileRect = projectilePicture.get_rect()
 
-#Image of barrier
-barrierPicture = pygame.image.load("fence.png")
-#Some features of the barrier
-barrierXPos = 100
-barrierYPos = 100
-barrierXChange = .8
-barrierYChange = 0
-
 #I think what I should do is have a thread  class that
 #Takes in the measurement independently 
 
@@ -54,10 +46,6 @@ xPos = 0
 xNeg = 0
 yPos = 0
 yNeg = 0
-
-#Function to update barrier
-def barrierUpdate(x,y):
-    screen.blit(barrierPicture,(barrierXPos,barrierYPos))
 
 def fromSensorTo(sensorData,width):
     #We are getting a distance from the sensor and then I wwant to translate it to some width thing
@@ -121,25 +109,6 @@ while 1:
     ballUpdate(player1.returnXPos(),player1.returnYPos())
     #moving the second ball 
     ballUpdate(player2.returnXPos(),player2.returnYPos())
-
-
-    #Moving the barrier
-    barrierUpdate(barrierXPos,barrierYPos)
-
-    #Moving the ball according ot x and y change value
-    barrierXPos += barrierXChange
-    barrierYChange += barrierYChange
-
-    #If we go out of bounds we don't and we change direction
-    if barrierXPos < 0:
-        barrierXPos = 0
-        #changing direction
-        barrierXChange *= -1
-    elif barrierXPos > width -32:
-        barrierXPos = barrierXPos
-        #Changing direction
-        barrierXChange *= -1
-
     
     #I think we should move barrier first then ball
     #Then during ball check we see if we should reflect
@@ -150,8 +119,15 @@ while 1:
         #We are showing the projectile on the screen
         screen.blit(projectilePicture,(projectile.xPos,projectile.yPos))
         #Call function that checks if there is collision
-        barrierPosition = (barrierXPos,barrierYPos)
-        projectile.checkCollision(barrierPosition,barrierPicture.get_rect())
+        
+        #get both players position
+        player1Pos = ( player1.returnXPos(),player1.returnYPos() )
+        player2Pos = ( player2.returnXPos(),player2.returnYPos() + 80 )
+        
+
+        projectile.checkCollision(player1Pos,ballrect)
+        projectile.checkCollision(player2Pos,ballrect)
+
         #We are calling the moveBulletFunction in the bullets class which moves the y position
         projectile.moveBullet()
         #If the yPosition is <0 then we call the doneBullet() method which says that the bullet should no longer be on screen
