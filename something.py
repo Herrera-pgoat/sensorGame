@@ -3,7 +3,7 @@ import pygame
 import time
 from bullets import bullets
 from sensorClass import sensorThread
-from playerControls import playerPosition
+from playerControls import playerInfo
 
 import time
 
@@ -30,8 +30,8 @@ screen = pygame.display.set_mode(size)
 ball = pygame.image.load("intro_ball.gif")
 ballrect = ball.get_rect()
 
-player1 = playerPosition(100,500)
-player2 = playerPosition(100,100)
+player1 = playerInfo(100,500)
+player2 = playerInfo(100,100)
 
 #Image of the projectile
 projectilePicture = pygame.image.load("tennis.png")
@@ -46,6 +46,11 @@ xPos = 0
 xNeg = 0
 yPos = 0
 yNeg = 0
+
+def showScore(player1Score,player2Score,x=300,y=0):
+    myfont = pygame.font.SysFont('Comic Sans MS', 30)
+    textsurface = myfont.render('P1 Score:'+ str(player1Score) + "\nP2 Score:"  + str(player2Score), False, (0, 0, 0))
+    screen.blit(textsurface,(x,y))
 
 def fromSensorTo(sensorData,width):
     #We are getting a distance from the sensor and then I wwant to translate it to some width thing
@@ -63,6 +68,7 @@ def fromSensorTo(sensorData,width):
 #Function to update bullets
 def ballUpdate(x, y):
     screen.blit(ball,(x,y))
+
 
 
 player1Readings.start()
@@ -134,8 +140,12 @@ while 1:
         #If the yPosition is <0 then we call the doneBullet() method which says that the bullet should no longer be on screen
         if projectile.yPos < -15 :
             projectile.doneBullet()
+            #The top player has been scored on
+            player1.increaseScore()
         elif projectile.yPos > height - 15:
             projectile.doneBullet()
+            player2.increaseScore()
+            #the bottom player has been scored on
             
         #if we encounter the barrier then we should reflect ball yChange 
 
@@ -148,18 +158,7 @@ while 1:
             #Removing the projectile with the pop method
             projectileList.pop((projectileListSize-1)-i)
 
-
-
-    #Something I want to try is if when we move the barrier
-    #We encounter a ball then we should reflect
-    #the ball
-
-    #Moving the barrier
-    # ballrect = ballrect.move(speed)
-    # if ballrect.left < 0 or ballrect.right > width:
-    #     speed[0] = -speed[0]
-    # if ballrect.top < 0 or ballrect.bottom > height:
-    #     speed[1] = -speed[1]
+    showScore(player1.returnScore(),player2.returnScore())
 
     #updating the display
     pygame.display.update()
